@@ -1,4 +1,4 @@
-#include "CameraModeControl.h"
+#include "cameramodecontrol.h"
 
 #include <QMediaObject>
 #include <QMediaService>
