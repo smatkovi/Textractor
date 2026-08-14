@@ -1,6 +1,7 @@
 #include "imageprocessor.h"
 #include <leptonica/allheaders.h>
 #include <tesseract/ocrclass.h>
+#include <tesseract/resultiterator.h>
 #include <QString>
 #include <QDebug>
 #include <QStandardPaths>
@@ -88,23 +89,31 @@ QString writeToDisk(Pix *img) {
 
 QString clean(char* outText, tesseract::TessBaseAPI *api, int confidence) {
 
-    QString text = QString::fromLocal8Bit(outText);
-
-    // Lets do some cleaning based on the word confidence value
-    QStringList results = text.split(" ");
-    int *confidences = api->AllWordConfidences();
-    int i = 0;
-
-    while(i < results.size()) {
-        if(confidences[i] < confidence) {
-            results.removeAt(i);
-        }
-        ++i;
+    // Wortweise ueber den ResultIterator: korrekte Text/Confidence-Zuordnung,
+    // Zeilenumbrueche bleiben erhalten
+    QString text;
+    tesseract::ResultIterator* ri = api->GetIterator();
+    if (ri != nullptr) {
+        const tesseract::PageIteratorLevel level = tesseract::RIL_WORD;
+        do {
+            char* word = ri->GetUTF8Text(level);
+            if (word == nullptr) continue;
+            if (ri->Confidence(level) >= confidence) {
+                if (!text.isEmpty()) {
+                    if (ri->IsAtBeginningOf(tesseract::RIL_TEXTLINE))
+                        text += "\n";
+                    else
+                        text += " ";
+                }
+                text += QString::fromUtf8(word);
+            }
+            delete [] word;
+        } while (ri->Next(level));
+        delete ri;
+    } else {
+        text = QString::fromUtf8(outText);
     }
 
-    text = results.join(" ").toUtf8();
-
-    delete [] confidences;
     delete [] outText;
     return text;
 }
