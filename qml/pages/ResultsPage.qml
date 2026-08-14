@@ -116,6 +116,16 @@ Page {
 
     property bool preprocessed: false;
 
+    Component.onCompleted: {
+        // OCR kann schon fertig sein, bevor diese Seite existiert
+        if (loading && tesseractAPI.resultPending()) {
+            area.text = tesseractAPI.takeResult();
+            textholder.height = area.height + 50
+            loading = false;
+            preprocessed = true;
+        }
+    }
+
     Connections {
         target: tesseractAPI
         onAnalyzed: {

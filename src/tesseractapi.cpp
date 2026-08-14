@@ -36,6 +36,7 @@ TesseractAPI::TesseractAPI(QObject *parent) :
 
     info_ = Info();
     cancel_ = false;
+    resultPending_ = false;
     run_at_least_once_ = false;
 }
 
@@ -81,6 +82,7 @@ void TesseractAPI::analyze(QString imagepath, QVariant cropPoints)
     watcher_ = new QFutureWatcher<QString>();
     connect(watcher_, SIGNAL(finished()), this, SLOT(handleAnalyzed()));
 
+    resultPending_ = false;
     monitor_->progress = 0;
     monitor_->cancel = &TesseractAPI::cancelCallback;
     monitor_->cancel_this = this;
@@ -126,6 +128,7 @@ void TesseractAPI::analyzePDF(QList<int> pages)
     watcher_ = new QFutureWatcher<QString>();
     connect(watcher_, SIGNAL(finished()), this, SLOT(handleAnalyzed()));
 
+    resultPending_ = false;
     monitor_->progress = 0;
     monitor_->cancel = &TesseractAPI::cancelCallback;
     monitor_->cancel_this = this;
@@ -188,6 +191,17 @@ SettingsManager *TesseractAPI::settings() const
     return settingsManager_;
 }
 
+bool TesseractAPI::resultPending()
+{
+    return resultPending_;
+}
+
+QString TesseractAPI::takeResult()
+{
+    resultPending_ = false;
+    return lastResult_;
+}
+
 bool TesseractAPI::isCancel()
 {
     if(cancel_) {
@@ -226,8 +240,10 @@ bool TesseractAPI::thumbsReady()
 void TesseractAPI::handleAnalyzed()
 {
     qDebug() << "TRACE handleAnalyzed";
-    // send results to the UI
-    emit analyzed(watcher_->future().result());
+    // Ergebnis cachen: ResultsPage existiert evtl. noch nicht (Race)
+    lastResult_ = watcher_->future().result();
+    resultPending_ = true;
+    emit analyzed(lastResult_);
 
     // disconnect and stop timer
     disconnect(timer_, SIGNAL(timeout()), this, SLOT(update()));

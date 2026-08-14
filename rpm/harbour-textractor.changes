@@ -7,7 +7,7 @@
 - Restore Otsu binarization/deskew preprocessing: grayscale-only input
   proved slower and less accurate with the LSTM engine on photos
 
-* Thu Aug 14 2026 smatkovi <smatkovi@github> 1.0-1
+* Fri Aug 14 2026 smatkovi <smatkovi@github> 1.0-1
 - Port to Tesseract 5.5 (LSTM engine) and Leptonica 1.85
 - Bundle self-built aarch64 libraries, drop obsolete system lib bundling
 - Language data now downloaded from tessdata_fast
