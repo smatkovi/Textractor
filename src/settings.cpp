@@ -153,7 +153,7 @@ float SettingsManager::getConfidence()
 bool SettingsManager::isLangDataAvailable(QString lang)
 {
     QString datadir = QStandardPaths::writableLocation(QStandardPaths::DataLocation);
-    QDir tessdata = QDir(datadir + "/tesseract-ocr/3.05/tessdata");
+    QDir tessdata = QDir(datadir + "/tesseract5/tessdata");
     QStringList data = tessdata.entryList();
     return data.contains(languages.key(lang) + QString(".traineddata"));
 }

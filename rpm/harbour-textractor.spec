@@ -15,7 +15,7 @@ Name:       harbour-textractor
 %{!?qtc_make:%define qtc_make make}
 %{?qtc_builddir:%define _builddir %qtc_builddir}
 Summary:    Optical character recognition application.
-Version:    0.7
+Version:    1.0
 Release:    0
 Group:      Qt/Qt
 License:    MIT
@@ -23,6 +23,8 @@ URL:        http://skvark.github.io/Textractor/
 Source0:    %{name}-%{version}.tar.bz2
 Source100:  harbour-textractor.yaml
 Requires:   sailfishsilica-qt5 >= 0.10.9
+Requires:   poppler-qt5
+Requires:   libexif
 BuildRequires:  pkgconfig(sailfishapp) >= 1.0.2
 BuildRequires:  pkgconfig(Qt5Core)
 BuildRequires:  pkgconfig(Qt5Qml)
@@ -58,23 +60,9 @@ rm -rf %{buildroot}
 %qmake5_install
 
 # >> install post
-mkdir %{buildroot}%{_datadir}/%{name}/lib/
-cp -f /usr/lib/libtesseract.so.3 %{buildroot}%{_datadir}/%{name}/lib/
-cp -f /usr/lib/liblept.so.5 %{buildroot}%{_datadir}/%{name}/lib/
-cp -f /usr/lib/libjpeg.so.62 %{buildroot}%{_datadir}/%{name}/lib/
-cp -f /usr/lib/libpng15.so.15 %{buildroot}%{_datadir}/%{name}/lib/
-cp -f /usr/lib/libexif.so.12 %{buildroot}%{_datadir}/%{name}/lib/
-cp -f /usr/lib/libpoppler-qt5.so.1 %{buildroot}%{_datadir}/%{name}/lib/
-cp -f /usr/lib/libQt5Widgets.so.5 %{buildroot}%{_datadir}/%{name}/lib/
-cp -f /usr/lib/libfreetype.so.6 %{buildroot}%{_datadir}/%{name}/lib/
-cp -f /usr/lib/libpoppler.so.63 %{buildroot}%{_datadir}/%{name}/lib/
-cp -f /usr/lib/libnss3.so %{buildroot}%{_datadir}/%{name}/lib/
-cp -f /usr/lib/libnssutil3.so %{buildroot}%{_datadir}/%{name}/lib/
-cp -f /usr/lib/libssl3.so %{buildroot}%{_datadir}/%{name}/lib/
-cp -f /usr/lib/libsmime3.so %{buildroot}%{_datadir}/%{name}/lib/
-cp -f /usr/lib/libnspr4.so %{buildroot}%{_datadir}/%{name}/lib/
-cp -f /usr/lib/libplc4.so %{buildroot}%{_datadir}/%{name}/lib/
-cp -f /usr/lib/libplds4.so %{buildroot}%{_datadir}/%{name}/lib/
+mkdir -p %{buildroot}%{_datadir}/%{name}/lib/
+cp -a /home/sebastian/ps/staging-aarch64/usr/lib/libtesseract.so.5* %{buildroot}%{_datadir}/%{name}/lib/
+cp -a /home/sebastian/ps/staging-aarch64/usr/lib/libleptonica.so.6* %{buildroot}%{_datadir}/%{name}/lib/
 
 # << install post
 

@@ -22,7 +22,7 @@ Pix* preprocess(Pix *image, int sX, int sY,
     Pix* image3;
 
     // If user selects previously preprocessed image (binarized aka 1 bpp), do nothing
-    if(image->d != 32) {
+    if(pixGetDepth(image) != 32) {
         return image;
     }
 
@@ -32,15 +32,15 @@ Pix* preprocess(Pix *image, int sX, int sY,
     // pixOtsuThreshOnBackgroundNorm won't work if the internal pixGetBackgroundGrayMap
     // makes the map smaller than 5x5 (line 824 in adaptmap.c: (w + sx - 1) / sx) )
     l_float32 scaling_factor = 0;
-    float width = (image2->w + sX - 1) / sX;
-    float height = (image2->h + sY - 1) / sY;
+    float width = (pixGetWidth(image2) + sX - 1) / sX;
+    float height = (pixGetHeight(image2) + sY - 1) / sY;
 
     if(width < 5 || height < 5) {
 
         if (width < height) {
-            scaling_factor = 6.0 * sX / image2->w;
+            scaling_factor = 6.0 * sX / pixGetWidth(image2);
         } else {
-            scaling_factor = 6.0 * sY / image2->h;
+            scaling_factor = 6.0 * sY / pixGetHeight(image2);
         }
         image2 = pixScaleGrayLI(image2, scaling_factor, scaling_factor);
 

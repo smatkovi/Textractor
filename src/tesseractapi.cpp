@@ -20,7 +20,8 @@ TesseractAPI::TesseractAPI(QObject *parent) :
     api_ = new tesseract::TessBaseAPI();
 
     QString datadir = QStandardPaths::writableLocation(QStandardPaths::DataLocation);
-    QString datapath = QString(datadir + "/tesseract-ocr/3.05/tessdata");
+    QString datapath = QString(datadir + "/tesseract5/tessdata");
+    qputenv("TESSDATA_PREFIX", datapath.toLocal8Bit());
 
     QDir dir(datapath);
     if (!dir.exists()) {
@@ -79,7 +80,7 @@ void TesseractAPI::analyze(QString imagepath, QVariant cropPoints)
     connect(watcher_, SIGNAL(finished()), this, SLOT(handleAnalyzed()));
 
     monitor_->progress = 0;
-    monitor_->cancel = (CANCEL_FUNC)&TesseractAPI::cancelCallback;
+    monitor_->cancel = &TesseractAPI::cancelCallback;
     monitor_->cancel_this = this;
     info_.status = QString("Initializing...");
     info_.cropPoints = cropPoints.toMap();
@@ -124,7 +125,7 @@ void TesseractAPI::analyzePDF(QList<int> pages)
     connect(watcher_, SIGNAL(finished()), this, SLOT(handleAnalyzed()));
 
     monitor_->progress = 0;
-    monitor_->cancel = (CANCEL_FUNC)&TesseractAPI::cancelCallback;
+    monitor_->cancel = &TesseractAPI::cancelCallback;
     monitor_->cancel_this = this;
     info_.status = QString("Initializing...");
     info_.pages = pages;
@@ -166,8 +167,7 @@ void TesseractAPI::downloadLanguage(QString lang)
 
 QString TesseractAPI::tesseractVersion()
 {
-    static const char* version = api_->Version();
-    return QString(QByteArray::fromRawData(version, sizeof(version)));
+    return QString::fromLatin1(tesseract::TessBaseAPI::Version());
 }
 
 QString TesseractAPI::leptonicaVersion()

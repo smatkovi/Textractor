@@ -13,13 +13,15 @@
 TARGET = harbour-textractor
 
 CONFIG += sailfishapp
-CONFIG += c++11
+CONFIG += c++17
 QT += multimedia network core-private qml-private quick
 
 INCLUDEPATH += src/
 INCLUDEPATH += lib/
 
-LIBS += -ltesseract -llept -lexif -lpoppler-qt5
+STAGING = /home/sebastian/ps/staging-aarch64
+INCLUDEPATH += $$STAGING/usr/include $$STAGING/usr/include/leptonica
+LIBS += -L$$STAGING/usr/lib -ltesseract -lleptonica -lexif -lpoppler-qt5
 
 QMAKE_RPATHDIR += /usr/share/harbour-textractor/lib/
 

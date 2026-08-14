@@ -1,0 +1,132 @@
+diff -ruN '--exclude=.git*' a/harbour-textractor.pro b/harbour-textractor.pro
+--- a/harbour-textractor.pro	2023-01-28 11:18:10.000000000 +0000
++++ b/harbour-textractor.pro	2026-08-14 19:40:01.363595749 +0000
+@@ -13,13 +13,15 @@
+ TARGET = harbour-textractor
+ 
+ CONFIG += sailfishapp
+-CONFIG += c++11
++CONFIG += c++17
+ QT += multimedia network core-private qml-private quick
+ 
+ INCLUDEPATH += src/
+ INCLUDEPATH += lib/
+ 
+-LIBS += -ltesseract -llept -lexif -lpoppler-qt5
++STAGING = /home/sebastian/ps/staging-aarch64
++INCLUDEPATH += $$STAGING/usr/include $$STAGING/usr/include/leptonica
++LIBS += -L$$STAGING/usr/lib -ltesseract -lleptonica -lexif -lpoppler-qt5
+ 
+ QMAKE_RPATHDIR += /usr/share/harbour-textractor/lib/
+ 
+diff -ruN '--exclude=.git*' a/src/downloadmanager.cpp b/src/downloadmanager.cpp
+--- a/src/downloadmanager.cpp	2023-01-28 11:18:10.000000000 +0000
++++ b/src/downloadmanager.cpp	2026-08-14 19:40:01.370133018 +0000
+@@ -5,8 +5,8 @@
+ #include <QUrl>
+ #include <QDebug>
+ 
+-QString downloadUrl("https://raw.githubusercontent.com/tesseract-ocr/tessdata/3.04.00/");
+-QString dataFolder("/tesseract-ocr/3.05/tessdata/");
++QString downloadUrl("https://raw.githubusercontent.com/tesseract-ocr/tessdata_fast/main/");
++QString dataFolder("/tesseract5/tessdata/");
+ QString fileType(".traineddata");
+ 
+ DownloadManager::DownloadManager(QObject *parent) :
+diff -ruN '--exclude=.git*' a/src/imageprocessor.cpp b/src/imageprocessor.cpp
+--- a/src/imageprocessor.cpp	2023-01-28 11:18:10.000000000 +0000
++++ b/src/imageprocessor.cpp	2026-08-14 19:42:47.677260141 +0000
+@@ -22,7 +22,7 @@
+     Pix* image3;
+ 
+     // If user selects previously preprocessed image (binarized aka 1 bpp), do nothing
+-    if(image->d != 32) {
++    if(pixGetDepth(image) != 32) {
+         return image;
+     }
+ 
+@@ -32,15 +32,15 @@
+     // pixOtsuThreshOnBackgroundNorm won't work if the internal pixGetBackgroundGrayMap
+     // makes the map smaller than 5x5 (line 824 in adaptmap.c: (w + sx - 1) / sx) )
+     l_float32 scaling_factor = 0;
+-    float width = (image2->w + sX - 1) / sX;
+-    float height = (image2->h + sY - 1) / sY;
++    float width = (pixGetWidth(image2) + sX - 1) / sX;
++    float height = (pixGetHeight(image2) + sY - 1) / sY;
+ 
+     if(width < 5 || height < 5) {
+ 
+         if (width < height) {
+-            scaling_factor = 6.0 * sX / image2->w;
++            scaling_factor = 6.0 * sX / pixGetWidth(image2);
+         } else {
+-            scaling_factor = 6.0 * sY / image2->h;
++            scaling_factor = 6.0 * sY / pixGetHeight(image2);
+         }
+         image2 = pixScaleGrayLI(image2, scaling_factor, scaling_factor);
+ 
+diff -ruN '--exclude=.git*' a/src/imageprocessor.h b/src/imageprocessor.h
+--- a/src/imageprocessor.h	2023-01-28 11:18:10.000000000 +0000
++++ b/src/imageprocessor.h	2026-08-14 19:42:47.677013411 +0000
+@@ -2,6 +2,8 @@
+ #define IMAGEPROCESSOR_H
+ 
+ #include <tesseract/baseapi.h>
++#include <tesseract/ocrclass.h>
++using tesseract::ETEXT_DESC;
+ #include <QString>
+ #include <settings.h>
+ #include <QPair>
+diff -ruN '--exclude=.git*' a/src/settings.cpp b/src/settings.cpp
+--- a/src/settings.cpp	2023-01-28 11:18:10.000000000 +0000
++++ b/src/settings.cpp	2026-08-14 19:40:01.365858573 +0000
+@@ -153,7 +153,7 @@
+ bool SettingsManager::isLangDataAvailable(QString lang)
+ {
+     QString datadir = QStandardPaths::writableLocation(QStandardPaths::DataLocation);
+-    QDir tessdata = QDir(datadir + "/tesseract-ocr/3.05/tessdata");
++    QDir tessdata = QDir(datadir + "/tesseract5/tessdata");
+     QStringList data = tessdata.entryList();
+     return data.contains(languages.key(lang) + QString(".traineddata"));
+ }
+diff -ruN '--exclude=.git*' a/src/tesseractapi.cpp b/src/tesseractapi.cpp
+--- a/src/tesseractapi.cpp	2023-01-28 11:18:10.000000000 +0000
++++ b/src/tesseractapi.cpp	2026-08-14 19:42:47.677427238 +0000
+@@ -20,7 +20,8 @@
+     api_ = new tesseract::TessBaseAPI();
+ 
+     QString datadir = QStandardPaths::writableLocation(QStandardPaths::DataLocation);
+-    QString datapath = QString(datadir + "/tesseract-ocr/3.05/tessdata");
++    QString datapath = QString(datadir + "/tesseract5/tessdata");
++    qputenv("TESSDATA_PREFIX", datapath.toLocal8Bit());
+ 
+     QDir dir(datapath);
+     if (!dir.exists()) {
+@@ -79,7 +80,7 @@
+     connect(watcher_, SIGNAL(finished()), this, SLOT(handleAnalyzed()));
+ 
+     monitor_->progress = 0;
+-    monitor_->cancel = (CANCEL_FUNC)&TesseractAPI::cancelCallback;
++    monitor_->cancel = &TesseractAPI::cancelCallback;
+     monitor_->cancel_this = this;
+     info_.status = QString("Initializing...");
+     info_.cropPoints = cropPoints.toMap();
+@@ -124,7 +125,7 @@
+     connect(watcher_, SIGNAL(finished()), this, SLOT(handleAnalyzed()));
+ 
+     monitor_->progress = 0;
+-    monitor_->cancel = (CANCEL_FUNC)&TesseractAPI::cancelCallback;
++    monitor_->cancel = &TesseractAPI::cancelCallback;
+     monitor_->cancel_this = this;
+     info_.status = QString("Initializing...");
+     info_.pages = pages;
+@@ -166,8 +167,7 @@
+ 
+ QString TesseractAPI::tesseractVersion()
+ {
+-    static const char* version = api_->Version();
+-    return QString(QByteArray::fromRawData(version, sizeof(version)));
++    return QString::fromLatin1(tesseract::TessBaseAPI::Version());
+ }
+ 
+ QString TesseractAPI::leptonicaVersion()

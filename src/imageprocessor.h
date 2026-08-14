@@ -2,6 +2,8 @@
 #define IMAGEPROCESSOR_H
 
 #include <tesseract/baseapi.h>
+#include <tesseract/ocrclass.h>
+using tesseract::ETEXT_DESC;
 #include <QString>
 #include <settings.h>
 #include <QPair>

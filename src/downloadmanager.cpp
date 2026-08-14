@@ -5,8 +5,8 @@
 #include <QUrl>
 #include <QDebug>
 
-QString downloadUrl("https://raw.githubusercontent.com/tesseract-ocr/tessdata/3.04.00/");
-QString dataFolder("/tesseract-ocr/3.05/tessdata/");
+QString downloadUrl("https://raw.githubusercontent.com/tesseract-ocr/tessdata_fast/main/");
+QString dataFolder("/tesseract5/tessdata/");
 QString fileType(".traineddata");
 
 DownloadManager::DownloadManager(QObject *parent) :
