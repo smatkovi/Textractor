@@ -359,10 +359,14 @@ QString run(QString imagepath,
     }
 
     info.status = QString("Preprocessing the image...");
-    pixs = preprocess(pixs, settings->getTileSize(), settings->getTileSize(),
-                      settings->getThreshold(), settings->getMinCount(), settings->getBgVal(),
-                      settings->getSmoothingFactor(), settings->getSmoothingFactor(),
-                      settings->getScoreFract());
+    // Tesseract 5 LSTM: nur Graustufen, Binarisierung/Deskew macht die Engine intern besser
+    if (pixGetDepth(pixs) == 32) {
+        Pix* gray_pixs = pixConvertRGBToGrayFast(pixs);
+        if (gray_pixs) {
+            pixDestroy(&pixs);
+            pixs = gray_pixs;
+        }
+    }
 
 
 
