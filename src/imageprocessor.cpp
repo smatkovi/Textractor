@@ -419,10 +419,15 @@ QString runPDF(PDFHandler* pdf,
 
         info.status = QString("Preprocessing page %1/%2...").arg(info.curPage).arg(info.pages.length());
 
-        Pix *pixs = preprocess(pageimg, settings->getTileSize(), settings->getTileSize(),
-                               settings->getThreshold(), settings->getMinCount(), settings->getBgVal(),
-                               settings->getSmoothingFactor(), settings->getSmoothingFactor(),
-                               settings->getScoreFract());
+        // Tesseract 5 LSTM: nur Graustufen statt Binarisierung/Deskew
+        Pix *pixs = pageimg;
+        if (pixGetDepth(pixs) == 32) {
+            Pix* gray_pdf = pixConvertRGBToGrayFast(pixs);
+            if (gray_pdf) {
+                pixDestroy(&pixs);
+                pixs = gray_pdf;
+            }
+        }
 
         if(!pixs) {
             pixDestroy(&pixs);
