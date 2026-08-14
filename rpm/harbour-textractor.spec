@@ -8,6 +8,7 @@ Name:       harbour-textractor
 # >> macros
 %define __provides_exclude_from ^%{_datadir}/.*$
 %define __requires_exclude ^libtesseract|libjpeg|libpng|libnss3|libsmime3|libssl3|libnssutil3|libnspr4|libplc4|libplds4|libexif\\.so\\.12|libc\\.so\\.6\\(GLIBC_2\\.11\\)|libpoppler-qt5\\.so\\.1|libQt5Widgets\\.so\\.5|libfreetype\\.so\\.6|libpoppler\\.so\\.63|liblept.*$
+%define staging %(echo $HOME)/ps/staging-aarch64
 # << macros
 
 %{!?qtc_qmake:%define qtc_qmake %qmake}
@@ -61,8 +62,8 @@ rm -rf %{buildroot}
 
 # >> install post
 mkdir -p %{buildroot}%{_datadir}/%{name}/lib/
-cp -a /home/sebastian/ps/staging-aarch64/usr/lib/libtesseract.so.5* %{buildroot}%{_datadir}/%{name}/lib/
-cp -a /home/sebastian/ps/staging-aarch64/usr/lib/libleptonica.so.6* %{buildroot}%{_datadir}/%{name}/lib/
+cp -a %{staging}/usr/lib/libtesseract.so.5* %{buildroot}%{_datadir}/%{name}/lib/
+cp -a %{staging}/usr/lib/libleptonica.so.6* %{buildroot}%{_datadir}/%{name}/lib/
 
 # << install post
 
