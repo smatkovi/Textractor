@@ -182,6 +182,7 @@ QImage rotateByExif(int orientation, QImage img)
 }
 
 QString rotate(QString imagepath, Info &info) {
+    qDebug() << "TRACE rotate()" << imagepath;
 
     QImage img(imagepath);
     img.setDotsPerMeterX(11811.025); // magic value :D = 300 dpi
@@ -342,6 +343,7 @@ QString run(QString imagepath,
             SettingsManager *settings,
             Info &info) {
 
+    qDebug() << "TRACE run() start" << imagepath;
     info.status = QString("Cropping...");
     Pix *pixs;
 
@@ -383,7 +385,9 @@ QString run(QString imagepath,
 
     char *outText;
     info.status = QString("Running OCR...");
+    qDebug() << "TRACE Recognize start";
     api->Recognize(monitor);
+    qDebug() << "TRACE Recognize done";
     outText = api->GetUTF8Text();
 
     info.status = QString("Postprocessing...");

@@ -60,6 +60,7 @@ TesseractAPI::~TesseractAPI()
 }
 
 void TesseractAPI::prepareForCropping(QString imagepath, int rotation, bool gallery) {
+    qDebug() << "TRACE prepareForCropping" << imagepath << rotation << gallery;
 
     watcher_ = new QFutureWatcher<QString>();
     connect(watcher_, SIGNAL(finished()), this, SLOT(handleRotated()));
@@ -74,6 +75,7 @@ void TesseractAPI::prepareForCropping(QString imagepath, int rotation, bool gall
 
 void TesseractAPI::analyze(QString imagepath, QVariant cropPoints)
 {
+    qDebug() << "TRACE analyze" << imagepath;
     imagepath.replace("file://", "");
     // Run the cpu-heavy stuff in another thread.
     watcher_ = new QFutureWatcher<QString>();
@@ -223,6 +225,7 @@ bool TesseractAPI::thumbsReady()
 
 void TesseractAPI::handleAnalyzed()
 {
+    qDebug() << "TRACE handleAnalyzed";
     // send results to the UI
     emit analyzed(watcher_->future().result());
 
@@ -238,6 +241,7 @@ void TesseractAPI::handleAnalyzed()
 
 void TesseractAPI::handleRotated()
 {
+    qDebug() << "TRACE handleRotated" << watcher_->future().result();
     // send results to the UI
     setRotated(true);
     rotatedPath_ = watcher_->future().result();

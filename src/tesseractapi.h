@@ -37,6 +37,8 @@ public:
     Q_INVOKABLE void downloadLanguage(QString lang);
 
     Q_INVOKABLE QString tesseractVersion();
+    Q_INVOKABLE bool resultPending();
+    Q_INVOKABLE QString takeResult();
     Q_INVOKABLE QString leptonicaVersion();
     Q_INVOKABLE QString homePath();
 
@@ -94,6 +96,8 @@ private:
     QFutureWatcher<QStringList> *PDFwatcher_;
     QTimer *timer_;
     QString status_;
+    QString lastResult_;
+    bool resultPending_;
     QString rotatedPath_;
     bool rotated_;
     bool thumbsReady_;
