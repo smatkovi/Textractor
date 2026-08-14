@@ -16,7 +16,7 @@ Name:       harbour-textractor
 %{!?qtc_make:%define qtc_make make}
 %{?qtc_builddir:%define _builddir %qtc_builddir}
 Summary:    Optical character recognition application.
-Version:    1.1
+Version:    1.2
 Release:    0
 Group:      Qt/Qt
 License:    MIT

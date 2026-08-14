@@ -1,6 +1,6 @@
-* Fri Aug 14 2026 smatkovi <smatkovi@github> 1.1-0
-- Replace legacy Otsu binarization/deskew with plain grayscale conversion,
-  tuned for the Tesseract 5 LSTM engine
+* Fri Aug 14 2026 smatkovi <smatkovi@github> 1.2-0
+- Restore Otsu binarization/deskew preprocessing: grayscale-only input
+  proved slower and less accurate with the LSTM engine on photos
 
 * Thu Aug 14 2026 smatkovi <smatkovi@github> 1.0-1
 - Port to Tesseract 5.5 (LSTM engine) and Leptonica 1.85

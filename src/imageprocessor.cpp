@@ -359,14 +359,10 @@ QString run(QString imagepath,
     }
 
     info.status = QString("Preprocessing the image...");
-    // Tesseract 5 LSTM: nur Graustufen, Binarisierung/Deskew macht die Engine intern besser
-    if (pixGetDepth(pixs) == 32) {
-        Pix* gray_pixs = pixConvertRGBToGrayFast(pixs);
-        if (gray_pixs) {
-            pixDestroy(&pixs);
-            pixs = gray_pixs;
-        }
-    }
+    pixs = preprocess(pixs, settings->getTileSize(), settings->getTileSize(),
+                      settings->getThreshold(), settings->getMinCount(), settings->getBgVal(),
+                      settings->getSmoothingFactor(), settings->getSmoothingFactor(),
+                      settings->getScoreFract());
 
 
 
@@ -419,15 +415,10 @@ QString runPDF(PDFHandler* pdf,
 
         info.status = QString("Preprocessing page %1/%2...").arg(info.curPage).arg(info.pages.length());
 
-        // Tesseract 5 LSTM: nur Graustufen statt Binarisierung/Deskew
-        Pix *pixs = pageimg;
-        if (pixGetDepth(pixs) == 32) {
-            Pix* gray_pdf = pixConvertRGBToGrayFast(pixs);
-            if (gray_pdf) {
-                pixDestroy(&pixs);
-                pixs = gray_pdf;
-            }
-        }
+        Pix *pixs = preprocess(pageimg, settings->getTileSize(), settings->getTileSize(),
+                               settings->getThreshold(), settings->getMinCount(), settings->getBgVal(),
+                               settings->getSmoothingFactor(), settings->getSmoothingFactor(),
+                               settings->getScoreFract());
 
         if(!pixs) {
             pixDestroy(&pixs);
