@@ -8,7 +8,7 @@ Name:       harbour-textractor
 # >> macros
 %define __provides_exclude_from ^%{_datadir}/.*$
 %define __requires_exclude ^libtesseract|libjpeg|libpng|libnss3|libsmime3|libssl3|libnssutil3|libnspr4|libplc4|libplds4|libexif\\.so\\.12|libc\\.so\\.6\\(GLIBC_2\\.11\\)|libpoppler-qt5\\.so\\.1|libQt5Widgets\\.so\\.5|libfreetype\\.so\\.6|libpoppler\\.so\\.63|liblept.*$
-%define staging %(echo $HOME)/ps/staging-aarch64
+%define staging %(echo $HOME)/ps/staging-%{_target_cpu}
 # << macros
 
 %{!?qtc_qmake:%define qtc_qmake %qmake}
@@ -31,6 +31,8 @@ BuildRequires:  pkgconfig(Qt5Core)
 BuildRequires:  pkgconfig(Qt5Qml)
 BuildRequires:  pkgconfig(Qt5Quick)
 BuildRequires:  desktop-file-utils
+BuildRequires:  pkgconfig(poppler-qt5)
+BuildRequires:  libexif-devel
 
 %description
 Textractor is and OCR application made with Tesseract OCR and Leptonica.

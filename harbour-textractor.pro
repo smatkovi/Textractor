@@ -19,7 +19,9 @@ QT += multimedia network core-private qml-private quick
 INCLUDEPATH += src/
 INCLUDEPATH += lib/
 
-STAGING = $$(HOME)/ps/staging-aarch64
+equals(QT_ARCH, "arm64"): STAGING = $$(HOME)/ps/staging-aarch64
+equals(QT_ARCH, "arm"):   STAGING = $$(HOME)/ps/staging-armv7hl
+equals(QT_ARCH, "i386"):  STAGING = $$(HOME)/ps/staging-i486
 INCLUDEPATH += $$STAGING/usr/include $$STAGING/usr/include/leptonica
 LIBS += -L$$STAGING/usr/lib -ltesseract -lleptonica -lexif -lpoppler-qt5
 
